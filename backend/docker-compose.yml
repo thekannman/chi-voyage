@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - OUTSCRAPER_API_KEY=${OUTSCRAPER_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SYNC_INTERVAL=${SYNC_INTERVAL:-0 0 * * *}
+    restart: unless-stopped
+    volumes:
+      - ./logs:/usr/src/app/logs
+    # Uncomment and modify if you need to expose a port
+    # ports:
+    #   - "3000:3000" 
