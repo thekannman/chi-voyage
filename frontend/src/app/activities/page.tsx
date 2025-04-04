@@ -3,7 +3,7 @@ import { getPlacesByCategory } from '@/lib/api';
 import CategoryClient from '@/components/CategoryClient';
 
 type Props = {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export const metadata: Metadata = {
@@ -12,14 +12,15 @@ export const metadata: Metadata = {
 };
 
 export default async function ActivitiesPage({ searchParams }: Props) {
-  const initialData = await getPlacesByCategory('activity', 1, 12, searchParams.search as string);
+  const resolvedSearchParams = await searchParams;
+  const initialData = await getPlacesByCategory('activity', 1, 12, resolvedSearchParams.search as string);
   
   return (
     <CategoryClient
       initialData={initialData}
       category="activity"
       categoryTitle="Activities"
-      initialSearchQuery={searchParams.search as string}
+      initialSearchQuery={resolvedSearchParams.search as string}
     />
   );
 } 
