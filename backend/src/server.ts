@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { getAllPlaces, getPlaceBySlug, getPlacesByNeighborhood, searchPlaces, getUniqueSubtypesForCategory } from './db/queries';
+import { getPlaceBySlug, getPlacesByNeighborhood, searchPlaces, getUniqueSubtypesForCategory } from './db/queries';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -32,7 +32,7 @@ app.get('/api/places', async (req: Request, res: Response) => {
       console.log('Fetching places with category:', category);
       const result = await searchPlaces(
         search as string | undefined,
-        category as string,
+        category as 'activity' | 'restaurant' | 'attraction' | 'event' | 'other',
         page ? parseInt(page as string) : 1,
         pageSize ? parseInt(pageSize as string) : 12,
         priceRange as string | undefined,
@@ -60,11 +60,12 @@ app.get('/api/places', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/places/:slug', async (req: Request<{ slug: string }>, res: Response) => {
+app.get('/api/places/:slug', async (req: Request<{ slug: string }>, res: Response): Promise<void> => {
   try {
     const place = await getPlaceBySlug(req.params.slug);
     if (!place) {
-      return res.status(404).json({ error: 'Place not found' });
+      res.status(404).json({ error: 'Place not found' });
+      return;
     }
     console.log('Found place by slug:', place);
     res.json(place);
