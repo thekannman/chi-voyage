@@ -1,10 +1,11 @@
-import { generateSitemapEntries, SitemapEntry } from '../sitemap/route'
+import { generateSitemapEntries, SitemapEntry } from '@/lib/sitemap'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const page = parseInt(params.id, 10)
+  const resolvedParams = await params
+  const page = parseInt(resolvedParams.id, 10)
   const entries = await generateSitemapEntries(page)
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

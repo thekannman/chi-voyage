@@ -1,4 +1,4 @@
-import { generateSitemaps } from '../sitemap/route'
+import { generateSitemaps } from '@/lib/sitemap'
 
 interface SitemapInfo {
   id: number;
