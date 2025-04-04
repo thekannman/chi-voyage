@@ -1,10 +1,9 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPlaceBySlug, getAllPlaces } from '@/lib/api';
+import { getPlaceBySlug } from '@/lib/api';
 import ImageWithFallback from '@/components/ImageWithFallback';
 import GoogleMapComponent from '@/components/GoogleMap';
-import { StarIcon, MapPinIcon, CurrencyDollarIcon, ClockIcon, PhoneIcon, GlobeAltIcon } from '@heroicons/react/24/solid';
-import { Place } from '@/types';
+import { StarIcon, CurrencyDollarIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 interface CategoryPageProps {
   params: {
@@ -20,15 +19,15 @@ export async function generateMetadata({ params, category, categoryTitle }: Cate
   if (!place) {
     return {
       title: `${categoryTitle} Not Found | Chi Voyage`,
-      description: `The requested ${categoryTitle.toLowerCase()} could not be found.`,
+      description: `The requested ${category.toLowerCase()} could not be found.`,
     };
   }
 
   return {
-    title: `${place.title} | Chi Voyage`,
+    title: `${place.title} | ${categoryTitle} | Chi Voyage`,
     description: place.description || '',
     openGraph: {
-      title: `${place.title} | Chi Voyage`,
+      title: `${place.title} | ${categoryTitle} | Chi Voyage`,
       description: place.description || '',
       images: place.imagePath ? [place.imagePath] : [],
     },
@@ -36,17 +35,6 @@ export async function generateMetadata({ params, category, categoryTitle }: Cate
 }
 
 export const revalidate = 3600;
-
-// Generate static params for all places in the category
-export async function generateStaticParams(category: 'activity' | 'restaurant' | 'attraction' | 'event' | 'other') {
-  const places = await getAllPlaces();
-  return places
-    .filter(place => place.category === category)
-    .map((place) => ({
-      slug: place.slug,
-      category: `${category}s`
-    }));
-}
 
 export default async function CategoryPage({ params, category, categoryTitle }: CategoryPageProps) {
   const place = await getPlaceBySlug(params.slug);
@@ -58,6 +46,11 @@ export default async function CategoryPage({ params, category, categoryTitle }: 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        <nav className="mb-4">
+          <a href={`/${category}s`} className="text-blue-600 hover:text-blue-800">
+            ← Back to {categoryTitle}
+          </a>
+        </nav>
         {/* Hero Section */}
         <div className="relative w-full aspect-[16/9] mb-8 rounded-lg overflow-hidden shadow-lg">
           <ImageWithFallback
@@ -213,7 +206,9 @@ export default async function CategoryPage({ params, category, categoryTitle }: 
 
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
-                  <MapPinIcon className="h-5 w-5 text-gray-500" />
+                  <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                   <a 
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${place.title} ${place.location}`)}`}
                     target="_blank" 
@@ -223,47 +218,10 @@ export default async function CategoryPage({ params, category, categoryTitle }: 
                     {place.location}
                   </a>
                 </div>
-                <div className="flex items-center gap-2">
-                  <PhoneIcon className="h-5 w-5 text-gray-500" />
-                  <a 
-                    href={`tel:${place.phone}`}
-                    className="text-gray-600 hover:text-blue-600 hover:underline"
-                  >
-                    {place.phone}
-                  </a>
-                </div>
-                {place.website && (
-                  <div className="flex items-center gap-2">
-                    <GlobeAltIcon className="h-5 w-5 text-gray-500" />
-                    <a 
-                      href={place.website} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      Visit Website
-                    </a>
-                  </div>
-                )}
-                {place.details?.reservation_links && (
-                  <div className="flex items-center gap-2">
-                    <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <a 
-                      href={place.details.reservation_links}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      Make a Reservation
-                    </a>
-                  </div>
-                )}
                 {place.details?.menu_link && (
                   <div className="flex items-center gap-2">
                     <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     <a 
                       href={place.details.menu_link}
@@ -278,7 +236,7 @@ export default async function CategoryPage({ params, category, categoryTitle }: 
                 {place.details?.order_links && (
                   <div className="flex items-center gap-2">
                     <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     <a 
                       href={place.details.order_links}

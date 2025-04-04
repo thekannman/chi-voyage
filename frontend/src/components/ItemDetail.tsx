@@ -4,47 +4,12 @@ import { Item } from '@/data/items';
 import ImageWithFallback from './ImageWithFallback';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { MapPinIcon, ClockIcon, GlobeAltIcon, PhoneIcon, CurrencyDollarIcon, TagIcon, PhotoIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
 
 interface ItemDetailProps {
   item: Item;
 }
 
 export default function ItemDetail({ item }: ItemDetailProps) {
-  const [processedImagePath, setProcessedImagePath] = useState<string | null>(null);
-  
-  useEffect(() => {
-    async function processImage() {
-      if (item.imagePath) {
-        try {
-          // For client components, we need to use a different approach
-          // since we can't use the server-side processImageUrl function
-          // We'll use a simple check to see if it's an external URL
-          if (item.imagePath.startsWith('http')) {
-            // For external URLs, we'll use a proxy endpoint
-            const response = await fetch(`/api/proxy-image?url=${encodeURIComponent(item.imagePath)}`);
-            if (response.ok) {
-              const data = await response.json();
-              setProcessedImagePath(data.localPath);
-            } else {
-              setProcessedImagePath('/images/placeholder.jpg');
-            }
-          } else {
-            // For local paths, use as is
-            setProcessedImagePath(item.imagePath);
-          }
-        } catch (error) {
-          console.error('Error processing image:', error);
-          setProcessedImagePath('/images/placeholder.jpg');
-        }
-      } else {
-        setProcessedImagePath('/images/placeholder.jpg');
-      }
-    }
-    
-    processImage();
-  }, [item.imagePath]);
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

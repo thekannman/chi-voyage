@@ -1,4 +1,3 @@
-import { Metadata } from 'next';
 import CategoryPage from '@/components/CategoryPage';
 
 interface ActivityPageProps {
@@ -8,5 +7,5 @@ interface ActivityPageProps {
 }
 
 export default function ActivityPage({ params }: ActivityPageProps) {
-  return <CategoryPage params={params} category="activity" categoryTitle="Activity" />;
+  return <CategoryPage params={params} category="activity" categoryTitle="Activities" />;
 } 

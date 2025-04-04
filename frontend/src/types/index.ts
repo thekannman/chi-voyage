@@ -14,13 +14,13 @@ export interface Place {
     reservation_links?: string;
     menu_link?: string;
     order_links?: string;
-    [key: string]: any;
+    [key: string]: string | string[] | undefined;
   } | null;
   phone?: string | null;
   website?: string | null;
   price_range?: string | null;
-  working_hours?: Record<string, any> | null;
-  features?: Record<string, any> | null;
+  working_hours?: Record<string, string> | null;
+  features?: Record<string, string | boolean> | null;
   photos_count?: number | null;
   reviews_count?: number | null;
   latitude?: number | null;
