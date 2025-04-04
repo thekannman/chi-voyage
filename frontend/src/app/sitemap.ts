@@ -15,7 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   const sitemap = await generateSitemap(baseUrl);
   console.log('Generated sitemap entries:', sitemap.length);
-  console.log('Sitemap entries:', JSON.stringify(sitemap, null, 2));
+  //console.log('Sitemap entries:', JSON.stringify(sitemap, null, 2));
   console.log('=== Sitemap Generation Completed ===');
   
   return sitemap;

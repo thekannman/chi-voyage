@@ -97,51 +97,61 @@ export const staticRoutes: Route[] = [
 // Function to get all dynamic routes (you'll need to implement this based on your data)
 export async function getDynamicRoutes(baseUrl: string): Promise<Route[]> {
   try {
-    console.log('Starting getDynamicRoutes...');
+    // Fetch all places with pagination
+    let allPlaces: Place[] = [];
+    let currentPage = 1;
+    const pageSize = 12; // Match the backend's default page size
+    let hasMorePages = true;
     
-    // Fetch places
-    const placesUrl = `${baseUrl}/places`;
-    console.log('Fetching places from:', placesUrl);
-    const placesResponse = await fetch(placesUrl, {
-      cache: 'no-store', // Disable caching for debugging
-    });
-    
-    if (!placesResponse.ok) {
-      console.error('Failed to fetch places:', {
-        status: placesResponse.status,
-        statusText: placesResponse.statusText,
-        url: placesResponse.url
+    while (hasMorePages) {
+      const placesUrl = `${baseUrl}/places?page=${currentPage}&pageSize=${pageSize}`;
+      const placesResponse = await fetch(placesUrl, {
+        cache: 'no-store',
       });
-      return [];
+      
+      if (!placesResponse.ok) {
+        console.error('Failed to fetch places:', {
+          status: placesResponse.status,
+          statusText: placesResponse.statusText,
+          url: placesResponse.url
+        });
+        break;
+      }
+      
+      const placesData = await placesResponse.json();
+      const places = placesData.places || [];
+      allPlaces = [...allPlaces, ...places];
+      
+      // Check if there are more pages based on the total and pageSize
+      const total = placesData.total || 0;
+      const totalPages = Math.ceil(total / pageSize);
+      hasMorePages = currentPage < totalPages;
+      currentPage++;
     }
     
-    const placesData = await placesResponse.json();
-    console.log('Places API response:', placesData);
-    const places = placesData.places || [];
-    console.log(`Found ${places.length} places`);
+    console.log(`Total places found: ${allPlaces.length}`);
     
     // Map places to routes
-    const placeRoutes = places.map((place: Place) => {
+    const placeRoutes = allPlaces.map((place: Place) => {
       const categoryPath = place.category === 'activity' ? 'activities' :
                          place.category === 'restaurant' ? 'restaurants' :
                          place.category === 'attraction' ? 'attractions' :
                          place.category === 'event' ? 'events' : 'other';
       
-      return {
+      const route: Route = {
         path: `/${categoryPath}/${place.slug}`,
         priority: 0.9,
         changeFrequency: place.category === 'event' ? 'daily' : 'weekly',
         lastModified: place.updated_at ? new Date(place.updated_at) : new Date(),
       };
+      
+      return route;
     });
-    
-    console.log('Generated place routes:', placeRoutes);
     
     // Fetch neighborhoods
     const neighborhoodsUrl = `${baseUrl}/neighborhoods`;
-    console.log('Fetching neighborhoods from:', neighborhoodsUrl);
     const neighborhoodsResponse = await fetch(neighborhoodsUrl, {
-      cache: 'no-store', // Disable caching for debugging
+      cache: 'no-store',
     });
     
     if (!neighborhoodsResponse.ok) {
@@ -150,23 +160,23 @@ export async function getDynamicRoutes(baseUrl: string): Promise<Route[]> {
         statusText: neighborhoodsResponse.statusText,
         url: neighborhoodsResponse.url
       });
-      return placeRoutes; // Return what we have so far
+      return placeRoutes;
     }
     
     const neighborhoodsData = await neighborhoodsResponse.json();
-    console.log('Neighborhoods API response:', neighborhoodsData);
     const neighborhoods = neighborhoodsData.neighborhoods || [];
-    console.log(`Found ${neighborhoods.length} neighborhoods`);
     
     // Map neighborhoods to routes
-    const neighborhoodRoutes = neighborhoods.map((neighborhood: Neighborhood) => ({
-      path: `/neighborhoods/${neighborhood.slug}`,
-      priority: 0.8,
-      changeFrequency: 'monthly',
-      lastModified: new Date(),
-    }));
-    
-    console.log('Generated neighborhood routes:', neighborhoodRoutes);
+    const neighborhoodRoutes = neighborhoods.map((neighborhood: Neighborhood) => {
+      const route: Route = {
+        path: `/neighborhoods/${neighborhood.slug}`,
+        priority: 0.8,
+        changeFrequency: 'monthly',
+        lastModified: new Date(),
+      };
+      
+      return route;
+    });
     
     const allDynamicRoutes = [...placeRoutes, ...neighborhoodRoutes];
     console.log(`Total dynamic routes generated: ${allDynamicRoutes.length}`);
