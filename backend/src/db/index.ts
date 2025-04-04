@@ -6,12 +6,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Check for required environment variables
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_PASSWORD) {
-  throw new Error('SUPABASE_URL and SUPABASE_PASSWORD environment variables are required');
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required. Please set it to your Supabase direct connection string.');
 }
 
 // Use the direct connection string from Supabase
-const connectionString = process.env.DATABASE_URL || `postgresql://postgres:${process.env.SUPABASE_PASSWORD}@${process.env.SUPABASE_URL.replace('https://', '')}:5432/postgres?sslmode=require`;
+const connectionString = process.env.DATABASE_URL;
 
 // Create a PostgreSQL connection pool
 const pool = new Pool({
@@ -19,6 +19,12 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false // Required for Supabase
   }
+});
+
+// Test the connection
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
 });
 
 // Create and export the database instance
