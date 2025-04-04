@@ -40,6 +40,56 @@ export const staticRoutes: Route[] = [
     priority: 0.7,
     changeFrequency: 'monthly',
   },
+  {
+    path: '/help',
+    priority: 0.7,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/careers',
+    priority: 0.6,
+    changeFrequency: 'monthly',
+  },
+  {
+    path: '/cookies',
+    priority: 0.3,
+    changeFrequency: 'yearly',
+  },
+  {
+    path: '/search',
+    priority: 0.9,
+    changeFrequency: 'daily',
+  },
+  {
+    path: '/blog',
+    priority: 0.8,
+    changeFrequency: 'weekly',
+  },
+  {
+    path: '/activities',
+    priority: 0.9,
+    changeFrequency: 'weekly',
+  },
+  {
+    path: '/events',
+    priority: 0.9,
+    changeFrequency: 'daily',
+  },
+  {
+    path: '/attractions',
+    priority: 0.9,
+    changeFrequency: 'weekly',
+  },
+  {
+    path: '/restaurants',
+    priority: 0.9,
+    changeFrequency: 'weekly',
+  },
+  {
+    path: '/neighborhoods',
+    priority: 0.8,
+    changeFrequency: 'monthly',
+  },
 ]
 
 // Function to get all dynamic routes (you'll need to implement this based on your data)
