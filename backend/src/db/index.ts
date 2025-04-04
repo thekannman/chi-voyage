@@ -7,14 +7,14 @@ dotenv.config();
 
 // Check for required environment variables
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required. Please set it to your Supabase direct connection string.');
+  throw new Error('DATABASE_URL environment variable is required. Please set it to your Supabase Session Pooler connection string.');
 }
 
 // Log the connection string (with password redacted for security)
 const redactedConnectionString = process.env.DATABASE_URL.replace(/\/\/[^:]+:[^@]+@/, '//****:****@');
 console.log('Attempting to connect to database with connection string:', redactedConnectionString);
 
-// Use the direct connection string from Supabase
+// Use the Session Pooler connection string from Supabase
 const connectionString = process.env.DATABASE_URL;
 
 // Create a PostgreSQL connection pool with additional options
