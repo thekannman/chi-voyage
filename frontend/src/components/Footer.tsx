@@ -55,11 +55,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/help" className="text-base text-gray-500 hover:text-gray-900">
-                  Help Center
-                </Link>
-              </li>
-              <li>
                 <Link href="/faq" className="text-base text-gray-500 hover:text-gray-900">
                   FAQ
                 </Link>
@@ -75,13 +70,8 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://facebook.com/chivoyage" className="text-base text-gray-500 hover:text-gray-900">
+                <a href="https://facebook.com/realchivoyage" className="text-base text-gray-500 hover:text-gray-900">
                   Facebook
-                </a>
-              </li>
-              <li>
-                <a href="https://instagram.com/chivoyage" className="text-base text-gray-500 hover:text-gray-900">
-                  Instagram
                 </a>
               </li>
             </ul>

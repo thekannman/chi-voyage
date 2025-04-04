@@ -90,7 +90,7 @@ export async function searchPlaces(
 
   // Build the where conditions
   const whereConditions = (eb: ExpressionBuilder<Database, 'places'>) => {
-    const conditions = [];
+    let conditions: any[] = [];
     
     // Search conditions (these should be combined with OR)
     if (searchTerm && searchTerm.trim() !== '') {
@@ -108,47 +108,35 @@ export async function searchPlaces(
     }
 
     // Filter conditions (these should be combined with AND)
-    const filterConditions = [];
-
     if (category) {
       console.log('Adding category condition:', category);
-      filterConditions.push(eb('category', '=', category));
+      conditions.push(eb('category', '=', category));
     }
 
     if (priceRange && priceRange.trim() !== '') {
       console.log('Adding price range condition:', priceRange);
-      filterConditions.push(eb('price_range', '=', priceRange.trim()));
+      conditions.push(eb('price_range', '=', priceRange.trim()));
     }
 
     if (rating && rating.trim() !== '') {
       console.log('Adding rating condition:', rating);
-      filterConditions.push(eb('rating', '>=', parseFloat(rating.trim())));
+      conditions.push(eb('rating', '>=', parseFloat(rating.trim())));
     }
 
     if (subtype && subtype.trim() !== '') {
       console.log('Adding subtype condition:', subtype);
-      filterConditions.push(
+      conditions.push(
         sql<boolean>`details->'subtypes' @> ${JSON.stringify([subtype.trim()])}::jsonb`
       );
     }
 
-    // Combine search and filter conditions
-    let finalCondition = eb.val(true);
-
-    // If we have search conditions, add them
-    if (conditions.length > 0) {
-      finalCondition = conditions[0];
+    // If we have no conditions, return true
+    if (conditions.length === 0) {
+      return eb.val(true);
     }
 
-    // If we have filter conditions, combine them with AND
-    if (filterConditions.length > 0) {
-      finalCondition = filterConditions.reduce((acc, condition) => {
-        return eb.and([acc, condition]);
-      }, finalCondition);
-    }
-
-    console.log('Final where condition:', finalCondition);
-    return finalCondition;
+    // Combine all conditions with AND
+    return conditions.reduce((acc, condition) => eb.and([acc, condition]), eb.val(true));
   };
 
   // Get total count

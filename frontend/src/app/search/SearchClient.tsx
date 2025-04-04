@@ -1,30 +1,19 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { getPlacesByCategory, getSubtypesForCategory } from '@/lib/api';
-import { Place } from '@/types';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useInfiniteQuery, QueryFunctionContext } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
 import ImageWithFallback from '@/components/ImageWithFallback';
 import { StarIcon, MapPinIcon, CurrencyDollarIcon } from '@heroicons/react/24/solid';
+import { getAllPlaces } from '@/lib/api';
+import { Place } from '@/types';
 import SearchAndFilters from '@/components/SearchAndFilters';
 import { useDebounce } from '@/hooks/useDebounce';
 
-interface PlacesResponse {
-  places: Place[];
-  total: number;
-}
-
-interface CategoryClientProps {
-  initialData: PlacesResponse;
-  category: 'activity' | 'restaurant' | 'attraction' | 'event' | 'other';
-  categoryTitle: string;
-  initialSearchQuery?: string;
-}
-
 // Add mapping for category URLs
-const categoryUrls: Record<CategoryClientProps['category'], string> = {
+const categoryUrls: Record<string, string> = {
   activity: 'activities',
   restaurant: 'restaurants',
   attraction: 'attractions',
@@ -32,20 +21,19 @@ const categoryUrls: Record<CategoryClientProps['category'], string> = {
   other: 'other'
 };
 
-export default function CategoryClient({ initialData, category, categoryTitle, initialSearchQuery = '' }: CategoryClientProps) {
+interface PlacesResponse {
+  places: Place[];
+  total: number;
+}
+
+export default function SearchClient() {
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('q') || '';
   const { ref, inView } = useInView();
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [priceRange, setPriceRange] = useState('');
   const [rating, setRating] = useState('');
   const [subtype, setSubtype] = useState('');
-
-  // Fetch available subtypes for this category
-  const { data: availableSubtypes = [] } = useQuery({
-    queryKey: ['subtypes', category],
-    queryFn: () => getSubtypesForCategory(category),
-    staleTime: Infinity,
-  });
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   const {
     data,
@@ -56,27 +44,10 @@ export default function CategoryClient({ initialData, category, categoryTitle, i
     status,
     isFetching
   } = useInfiniteQuery<PlacesResponse>({
-    queryKey: [category, debouncedSearchQuery, priceRange, rating, subtype],
-    queryFn: async ({ pageParam = 1 }: { pageParam: unknown }): Promise<PlacesResponse> => {
-      const page = typeof pageParam === 'number' ? pageParam : 1;
-      
-      // Always get fresh data from the API
-      const response = await getPlacesByCategory(category, page, 12, debouncedSearchQuery, priceRange, rating, subtype);
-      
-      // For pages after the first, check if we've already loaded all results
-      if (page > 1) {
-        const itemsSoFar = (page - 1) * 12;
-        // If we've already loaded all items, return empty result
-        if (itemsSoFar >= response.total) {
-          return { places: [], total: response.total };
-        }
-      }
-      
-      return response;
-    },
-    initialData: {
-      pages: [initialData],
-      pageParams: [1],
+    queryKey: ['search', debouncedSearchQuery, priceRange, rating, subtype],
+    queryFn: async (context: QueryFunctionContext) => {
+      const page = typeof context.pageParam === 'number' ? context.pageParam : 1;
+      return getAllPlaces(page, 12, debouncedSearchQuery, priceRange, rating, subtype);
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage: PlacesResponse, pages: PlacesResponse[]) => {
@@ -141,18 +112,18 @@ export default function CategoryClient({ initialData, category, categoryTitle, i
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">{categoryTitle} in Chicago</h1>
+        <h1 className="text-4xl font-bold mb-8">Search Results for &ldquo;{searchQuery}&rdquo;</h1>
         
         <SearchAndFilters
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={() => {}} // No need to handle search change as it comes from URL
           priceRange={priceRange}
           onPriceRangeChange={setPriceRange}
           rating={rating}
           onRatingChange={setRating}
           subtype={subtype}
           onSubtypeChange={setSubtype}
-          availableSubtypes={availableSubtypes}
+          availableSubtypes={[]} // No subtypes for generic search
         />
         
         {isLoading ? (
@@ -172,7 +143,7 @@ export default function CategoryClient({ initialData, category, categoryTitle, i
             <p className="text-gray-600 text-lg">
               {debouncedSearchQuery || priceRange || rating || subtype
                 ? "No places found matching your filters. Try adjusting your search criteria."
-                : `No ${categoryTitle.toLowerCase()} found.`}
+                : "No places found."}
             </p>
           </div>
         ) : (
@@ -180,7 +151,7 @@ export default function CategoryClient({ initialData, category, categoryTitle, i
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {places.map((place: Place) => (
                 <Link 
-                  href={`/${categoryUrls[category]}/${place.slug}`} 
+                  href={`/${categoryUrls[place.category]}/${place.slug}`} 
                   key={place.id}
                   className="block group"
                 >
@@ -267,7 +238,7 @@ export default function CategoryClient({ initialData, category, categoryTitle, i
                   ))}
                 </div>
               ) : hasReachedEnd ? (
-                <div className="text-gray-600">No more {categoryTitle.toLowerCase()} to load</div>
+                <div className="text-gray-600">No more results to load</div>
               ) : (
                 <div className="text-gray-600">Load more</div>
               )}

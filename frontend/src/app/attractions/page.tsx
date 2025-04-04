@@ -10,9 +10,20 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600; // Revalidate every hour
 
-export default async function AttractionsPage() {
+export default async function AttractionsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string };
+}) {
   // Fetch initial data on the server
-  const initialData = await getPlacesByCategory('attraction', 1);
+  const initialData = await getPlacesByCategory('attraction', 1, 12, searchParams.search);
 
-  return <CategoryClient initialData={initialData} category="attraction" categoryTitle="Attractions" />;
+  return (
+    <CategoryClient 
+      initialData={initialData} 
+      category="attraction" 
+      categoryTitle="Attractions"
+      initialSearchQuery={searchParams.search}
+    />
+  );
 } 

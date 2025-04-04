@@ -72,9 +72,7 @@ export default function TermsOfService() {
 
         <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">8. Contact Information</h2>
-          <p>
-            If you have any questions about these Terms of Service, please contact us at:
-            <br />
+          <p className="text-gray-600">
             Email: legal@chivoyage.com
           </p>
         </section>

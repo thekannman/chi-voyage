@@ -87,7 +87,7 @@ export default function PrivacyPolicy() {
           <p>
             If you have any questions about this Privacy Policy, please contact us at:
             <br />
-            Email: privacy@chivoyage.com
+            Email: legal@chivoyage.com
           </p>
         </section>
       </div>

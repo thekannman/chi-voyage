@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import EventsClient from './EventsClient';
 import { getPlacesByCategory } from '@/lib/api';
+import CategoryClient from '@/components/CategoryClient';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -10,9 +10,20 @@ export const metadata: Metadata = {
   keywords: 'Chicago events, Chicago festivals, Chicago concerts, Chicago entertainment',
 };
 
-export default async function EventsPage() {
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string };
+}) {
   // Fetch initial data on the server
-  const initialData = await getPlacesByCategory('event', 1);
+  const initialData = await getPlacesByCategory('event', 1, 12, searchParams.search);
 
-  return <EventsClient initialData={initialData} />;
+  return (
+    <CategoryClient 
+      initialData={initialData} 
+      category="event" 
+      categoryTitle="Events"
+      initialSearchQuery={searchParams.search}
+    />
+  );
 } 

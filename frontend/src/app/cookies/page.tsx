@@ -74,7 +74,7 @@ export default function CookiePolicy() {
           <p>
             If you have any questions about our use of cookies, please contact us at:
             <br />
-            Email: privacy@chivoyage.com
+            Email: legal@chivoyage.com
           </p>
         </section>
       </div>

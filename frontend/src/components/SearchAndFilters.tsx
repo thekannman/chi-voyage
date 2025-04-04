@@ -76,7 +76,7 @@ export default function SearchAndFilters({
         <select
           value={subtype}
           onChange={(e) => onSubtypeChange(e.target.value)}
-          className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-3 py-1.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[290px]"
         >
           <option value="">All Types</option>
           {availableSubtypes.map((subtype) => (

@@ -3,20 +3,26 @@ import CategoryClient from '@/components/CategoryClient';
 import { getPlacesByCategory } from '@/lib/api';
 
 export const metadata: Metadata = {
-  title: 'Restaurants in Santiago | ChiVoyage',
-  description: 'Discover the best restaurants in Santiago, Chile. From local favorites to international cuisine, find your next dining destination.',
+  title: 'Restaurants in Santiago | Chi Voyage',
+  description: 'Discover the best restaurants in Santiago with Chi Voyage. Find detailed information about locations, ratings, and reviews.',
 };
 
 export const revalidate = 3600; // Revalidate every hour
 
-export default async function RestaurantsPage() {
-  const initialData = await getPlacesByCategory('restaurant', 1);
-  
+export default async function RestaurantsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string };
+}) {
+  // Fetch initial data on the server
+  const initialData = await getPlacesByCategory('restaurant', 1, 12, searchParams.search);
+
   return (
     <CategoryClient 
-      category="restaurant"
-      initialData={initialData}
+      initialData={initialData} 
+      category="restaurant" 
       categoryTitle="Restaurants"
+      initialSearchQuery={searchParams.search}
     />
   );
 } 

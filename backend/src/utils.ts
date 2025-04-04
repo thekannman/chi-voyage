@@ -40,7 +40,9 @@ export function categorizePlace(category: string): DatabasePlace['category'] {
 
 export function transformOutscraperPlace(place: OutscraperPlace): DatabasePlace {
   // Normalize price range to ensure consistent format
+  console.log('Original range:', place.range);
   const priceRange = place.range ? place.range.replace(/[^$]/g, '') : null;
+  console.log('Normalized price range:', priceRange);
 
   // Extract features from about section
   const features: string[] = [];

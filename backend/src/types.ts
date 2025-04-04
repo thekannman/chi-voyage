@@ -29,6 +29,7 @@ export interface OutscraperPlace {
   photo?: string;
   working_hours?: Record<string, string>;
   range?: string;
+  price_range?: string;
   description?: string;
   about?: {
     Service_options?: Record<string, boolean>;

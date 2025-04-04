@@ -2,10 +2,26 @@ import { Place, Neighborhood } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-export async function getAllPlaces(): Promise<Place[]> {
-  const res = await fetch(`${API_BASE_URL}/places`, {
+export async function getAllPlaces(
+  page: number = 1,
+  pageSize: number = 12,
+  search?: string,
+  priceRange?: string,
+  rating?: string,
+  subtype?: string
+): Promise<{ places: Place[], total: number }> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    pageSize: pageSize.toString(),
+    ...(search && search.trim() !== '' && { search: search.trim() }),
+    ...(priceRange && priceRange.trim() !== '' && { priceRange: priceRange.trim() }),
+    ...(rating && rating.trim() !== '' && { rating: rating.trim() }),
+    ...(subtype && subtype.trim() !== '' && { subtype: subtype.trim() })
+  });
+
+  const res = await fetch(`${API_BASE_URL}/places?${params.toString()}`, {
     next: {
-      revalidate: 3600 // Revalidate every hour
+      revalidate: 0 // Disable caching for this route
     }
   });
   
@@ -15,7 +31,7 @@ export async function getAllPlaces(): Promise<Place[]> {
   
   const data = await res.json();
   console.log('API Response - getAllPlaces:', data);
-  return data.places;
+  return data;
 }
 
 export async function getPlaceBySlug(slug: string): Promise<Place> {
