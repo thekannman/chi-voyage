@@ -20,21 +20,21 @@ const categories = [
     description: 'Discover exciting things to do in Chicago',
     icon: '🎯',
     href: '/activities',
-    image: '/images/categories/activities.jpg'
+    image: '/images/categories/activities.png'
   },
   {
     title: 'Restaurants',
     description: 'Find the best places to eat',
     icon: '🍽️',
     href: '/restaurants',
-    image: '/images/categories/restaurants.jpg'
+    image: '/images/categories/restaurants.png'
   },
   {
     title: 'Attractions',
     description: 'Explore Chicago\'s top attractions',
     icon: '🏛️',
     href: '/attractions',
-    image: '/images/categories/attractions.jpg'
+    image: '/images/categories/attractions.png'
   }
 ];
 
@@ -111,13 +111,13 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                <span className="text-sm text-gray-600">Popular:</span>
+              <div className="mt-4 flex flex-wrap gap-2 justify-center items-center">
+                <span className="px-3 py-1 text-sm text-gray-600 bg-gray-50 rounded-full">Popular:</span>
                 {categories.map(category => (
                   <button
                     key={category.href}
                     onClick={() => router.push(category.href)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-full transition-colors duration-200"
                   >
                     {category.title}
                   </button>
