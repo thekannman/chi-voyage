@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.get('/api/places', async (req: Request, res: Response) => {
+app.get('/places', async (req: Request, res: Response) => {
   try {
     const { category, page, pageSize, search, priceRange, rating, subtype } = req.query;
     
@@ -60,7 +60,7 @@ app.get('/api/places', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/places/:slug', async (req: Request<{ slug: string }>, res: Response): Promise<void> => {
+app.get('/places/:slug', async (req: Request<{ slug: string }>, res: Response): Promise<void> => {
   try {
     const place = await getPlaceBySlug(req.params.slug);
     if (!place) {
@@ -75,7 +75,7 @@ app.get('/api/places/:slug', async (req: Request<{ slug: string }>, res: Respons
   }
 });
 
-app.get('/api/neighborhoods/:id/places', async (req: Request<{ id: string }>, res: Response) => {
+app.get('/neighborhoods/:id/places', async (req: Request<{ id: string }>, res: Response) => {
   try {
     const places = await getPlacesByNeighborhood(req.params.id);
     console.log('Found neighborhood places:', places);
@@ -86,7 +86,7 @@ app.get('/api/neighborhoods/:id/places', async (req: Request<{ id: string }>, re
   }
 });
 
-app.get('/api/categories/:category/subtypes', async (req: Request<{ category: string }>, res: Response) => {
+app.get('/categories/:category/subtypes', async (req: Request<{ category: string }>, res: Response) => {
   try {
     const category = req.params.category as 'activity' | 'restaurant' | 'attraction' | 'event' | 'other';
     const subtypes = await getUniqueSubtypesForCategory(category);
@@ -98,6 +98,11 @@ app.get('/api/categories/:category/subtypes', async (req: Request<{ category: st
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-}); 
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export the Express API for Vercel
+export default app; 

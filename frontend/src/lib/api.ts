@@ -1,6 +1,6 @@
 import { Place, Neighborhood } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export async function getAllPlaces(
   page: number = 1,
