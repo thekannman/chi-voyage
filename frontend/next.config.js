@@ -40,6 +40,14 @@ const nextConfig = {
     });
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap-:id.xml',
+        destination: '/sitemap/:id.xml',
+      },
+    ]
+  },
 };
 
 module.exports = nextConfig; 
