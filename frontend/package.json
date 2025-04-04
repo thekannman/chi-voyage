@@ -6,7 +6,8 @@
     "dev": "NODE_ENV=development PORT=3000 next dev --turbopack",
     "build": "next build",
     "start": "NODE_ENV=production PORT=3000 next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.17",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

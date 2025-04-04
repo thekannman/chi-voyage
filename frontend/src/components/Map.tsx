@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Icon } from 'leaflet';
+import { Icon, LatLngExpression } from 'leaflet';
 import { useEffect, useState } from 'react';
 
 interface MapProps {
@@ -38,18 +38,20 @@ export default function Map({ latitude, longitude, title, className = 'h-[400px]
     return <div className={`${className} bg-gray-200 animate-pulse`} />;
   }
 
+  const center: LatLngExpression = [latitude, longitude];
+
   return (
     <MapContainer
-      center={[latitude, longitude]}
+      center={center}
       zoom={15}
       className={className}
       scrollWheelZoom={false}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <Marker position={[latitude, longitude]}>
+      <Marker position={center}>
         <Popup>{title}</Popup>
       </Marker>
     </MapContainer>

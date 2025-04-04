@@ -11,7 +11,7 @@ export const activities: Item[] = [
     description: 'Experience Chicago\'s iconic architecture from the Chicago River. This 90-minute tour takes you through the heart of the city, showcasing its rich architectural history.',
     imagePath: '/images/activities/architecture-cruise.jpg',
     rating: 4.8,
-    category: 'Tour',
+    category: 'activity',
     location: 'Chicago River',
     details: {
       price: '$45-55',
@@ -27,7 +27,7 @@ export const activities: Item[] = [
     description: 'Explore the famous Millennium Park, home to the iconic Cloud Gate sculpture and the Jay Pritzker Pavilion.',
     imagePath: '/images/activities/millennium-park.jpg',
     rating: 4.7,
-    category: 'Tour',
+    category: 'activity',
     location: 'Millennium Park',
     details: {
       price: 'Free',
@@ -45,7 +45,7 @@ export const restaurants: Item[] = [
     description: 'Three-Michelin-starred restaurant offering innovative tasting menus in a modern setting.',
     imagePath: '/images/restaurants/alinea.jpg',
     rating: 4.9,
-    category: 'Fine Dining',
+    category: 'restaurant',
     location: 'Lincoln Park',
     details: {
       price: '$$$$',
@@ -63,7 +63,7 @@ export const restaurants: Item[] = [
     description: 'Famous for its deep-dish pizza, this Chicago institution has been serving up delicious pies since 1971.',
     imagePath: '/images/restaurants/lou-malnatis.jpg',
     rating: 4.7,
-    category: 'Pizza',
+    category: 'restaurant',
     location: 'Multiple Locations',
     details: {
       price: '$$',
@@ -82,7 +82,7 @@ export const attractions: Item[] = [
     description: 'One of the oldest and largest art museums in the United States, featuring works from around the world.',
     imagePath: '/images/attractions/art-institute.jpg',
     rating: 4.8,
-    category: 'Museum',
+    category: 'attraction',
     location: 'Grant Park',
     details: {
       price: '$25-35',
@@ -98,7 +98,7 @@ export const attractions: Item[] = [
     description: 'Iconic Chicago landmark featuring shops, restaurants, attractions, and stunning lakefront views.',
     imagePath: '/images/attractions/navy-pier.jpg',
     rating: 4.5,
-    category: 'Entertainment',
+    category: 'attraction',
     location: 'Navy Pier',
     details: {
       price: 'Free entry',
@@ -117,7 +117,7 @@ export const events: Item[] = [
     description: 'The largest free blues festival in the world, celebrating Chicago\'s rich blues heritage.',
     imagePath: '/images/events/blues-festival.jpg',
     rating: 4.7,
-    category: 'Music Festival',
+    category: 'event',
     location: 'Grant Park',
     details: {
       price: 'Free',
@@ -133,7 +133,7 @@ export const events: Item[] = [
     description: 'The world\'s largest food festival, featuring Chicago\'s diverse culinary scene.',
     imagePath: '/images/events/taste-of-chicago.jpg',
     rating: 4.6,
-    category: 'Food Festival',
+    category: 'event',
     location: 'Grant Park',
     details: {
       price: 'Free entry',

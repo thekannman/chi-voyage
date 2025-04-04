@@ -24,6 +24,7 @@ export default function AttractionsClient({ initialData }: AttractionsClientProp
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState('');
   const [rating, setRating] = useState('');
+  const [subtype, setSubtype] = useState('');
 
   const {
     data,
@@ -71,9 +72,12 @@ export default function AttractionsClient({ initialData }: AttractionsClientProp
       const matchesRating = rating === '' || 
         (place.rating && Number(place.rating) >= Number(rating));
       
-      return matchesSearch && matchesPrice && matchesRating;
+      const matchesSubtype = subtype === '' || 
+        place.subtype === subtype;
+      
+      return matchesSearch && matchesPrice && matchesRating && matchesSubtype;
     });
-  }, [data, searchQuery, priceRange, rating]);
+  }, [data, searchQuery, priceRange, rating, subtype]);
 
   if (status === 'error') return <div>Error: {error.message}</div>;
 
@@ -89,6 +93,9 @@ export default function AttractionsClient({ initialData }: AttractionsClientProp
           onPriceRangeChange={setPriceRange}
           rating={rating}
           onRatingChange={setRating}
+          subtype={subtype}
+          onSubtypeChange={setSubtype}
+          availableSubtypes={['Museum', 'Park', 'Landmark', 'Entertainment']}
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

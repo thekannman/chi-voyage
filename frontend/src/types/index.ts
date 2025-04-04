@@ -14,6 +14,11 @@ export interface Place {
     reservation_links?: string;
     menu_link?: string;
     order_links?: string;
+    hours?: string;
+    price?: string;
+    website?: string;
+    phone?: string;
+    address?: string;
     [key: string]: string | string[] | undefined;
   } | null;
   phone?: string | null;
@@ -31,6 +36,7 @@ export interface Place {
   subtitle?: string | null;
   popular_times?: Record<string, Record<string, number>> | null;
   verified?: boolean;
+  subtype?: string;
 }
 
 export interface Neighborhood {
@@ -39,7 +45,9 @@ export interface Neighborhood {
   slug: string;
   description: string;
   location: string;
+  imagePath?: string;
   images?: string[];
+  places: Place[];
   created_at: string;
   updated_at: string;
 } 
