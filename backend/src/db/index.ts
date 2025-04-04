@@ -10,8 +10,8 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_PASSWORD) {
   throw new Error('SUPABASE_URL and SUPABASE_PASSWORD environment variables are required');
 }
 
-// Use the direct database URL from Supabase
-const connectionString = process.env.DATABASE_URL || `postgresql://postgres:${process.env.SUPABASE_PASSWORD}@${process.env.SUPABASE_URL.replace('https://', '')}:5432/postgres`;
+// Use the direct connection string from Supabase
+const connectionString = process.env.DATABASE_URL || `postgresql://postgres:${process.env.SUPABASE_PASSWORD}@${process.env.SUPABASE_URL.replace('https://', '')}:5432/postgres?sslmode=require`;
 
 // Create a PostgreSQL connection pool
 const pool = new Pool({
