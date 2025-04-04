@@ -4,15 +4,15 @@ import { getAllNeighborhoods } from '@/lib/api';
 import CategoryCard from '@/components/CategoryCard';
 import { Place } from '@/types';
 
-interface NeighborhoodPageProps {
-  params: {
-    slug: string;
-  };
+type Props = {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export async function generateMetadata({ params }: NeighborhoodPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const neighborhoods = await getAllNeighborhoods();
-  const neighborhood = neighborhoods.find((n) => n.slug === params.slug);
+  const resolvedParams = await params;
+  const neighborhood = neighborhoods.find((n) => n.slug === resolvedParams.slug);
 
   if (!neighborhood) {
     return {
@@ -32,9 +32,10 @@ export async function generateMetadata({ params }: NeighborhoodPageProps): Promi
   };
 }
 
-export default async function NeighborhoodPage({ params }: NeighborhoodPageProps) {
+export default async function NeighborhoodPage({ params }: Props) {
   const neighborhoods = await getAllNeighborhoods();
-  const neighborhood = neighborhoods.find((n) => n.slug === params.slug);
+  const resolvedParams = await params;
+  const neighborhood = neighborhoods.find((n) => n.slug === resolvedParams.slug);
   
   if (!neighborhood) {
     notFound();

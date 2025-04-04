@@ -2,28 +2,27 @@ import { Metadata } from 'next';
 import { getPlacesByCategory } from '@/lib/api';
 import CategoryClient from '@/components/CategoryClient';
 
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
 export const metadata: Metadata = {
-  title: 'Chicago Attractions | Chi Voyage',
-  description: 'Explore Chicago\'s top attractions. From museums to landmarks, discover the best places to visit in the Windy City.',
-  keywords: 'Chicago attractions, Chicago museums, Chicago landmarks, Chicago sightseeing',
+  title: 'Attractions | Chi Voyage',
+  description: 'Explore the best attractions and landmarks in Chicago.',
 };
 
 export const revalidate = 3600; // Revalidate every hour
 
-export default async function AttractionsPage({
-  searchParams,
-}: {
-  searchParams: { search?: string };
-}) {
-  // Fetch initial data on the server
-  const initialData = await getPlacesByCategory('attraction', 1, 12, searchParams.search);
-
+export default async function AttractionsPage({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
+  const initialData = await getPlacesByCategory('attraction', 1, 12, resolvedSearchParams.search as string);
+  
   return (
-    <CategoryClient 
-      initialData={initialData} 
-      category="attraction" 
+    <CategoryClient
+      initialData={initialData}
+      category="attraction"
       categoryTitle="Attractions"
-      initialSearchQuery={searchParams.search}
+      initialSearchQuery={resolvedSearchParams.search as string}
     />
   );
 } 

@@ -1,11 +1,11 @@
 import CategoryPage from '@/components/CategoryPage';
 
-interface RestaurantPageProps {
-  params: {
-    slug: string;
-  };
+type Props = {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default function RestaurantPage({ params }: RestaurantPageProps) {
-  return <CategoryPage params={params} category="restaurant" categoryTitle="Restaurant" />;
+export default async function RestaurantPage({ params }: Props) {
+  const resolvedParams = await params;
+  return <CategoryPage params={resolvedParams} category="restaurant" categoryTitle="Restaurants" />;
 } 

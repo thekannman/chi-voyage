@@ -1,11 +1,11 @@
 import CategoryPage from '@/components/CategoryPage';
 
-interface EventPageProps {
-  params: {
-    slug: string;
-  };
+type Props = {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default function EventPage({ params }: EventPageProps) {
-  return <CategoryPage params={params} category="event" categoryTitle="Events" />;
+export default async function EventPage({ params }: Props) {
+  const resolvedParams = await params;
+  return <CategoryPage params={resolvedParams} category="event" categoryTitle="Events" />;
 } 

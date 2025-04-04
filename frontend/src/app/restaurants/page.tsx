@@ -1,28 +1,26 @@
 import { Metadata } from 'next';
-import CategoryClient from '@/components/CategoryClient';
 import { getPlacesByCategory } from '@/lib/api';
+import CategoryClient from '@/components/CategoryClient';
+
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
 export const metadata: Metadata = {
-  title: 'Restaurants in Santiago | Chi Voyage',
-  description: 'Discover the best restaurants in Santiago with Chi Voyage. Find detailed information about locations, ratings, and reviews.',
+  title: 'Restaurants | Chi Voyage',
+  description: 'Discover the best restaurants and dining experiences in Chicago.',
 };
 
-export const revalidate = 3600; // Revalidate every hour
-
-export default async function RestaurantsPage({
-  searchParams,
-}: {
-  searchParams: { search?: string };
-}) {
-  // Fetch initial data on the server
-  const initialData = await getPlacesByCategory('restaurant', 1, 12, searchParams.search);
-
+export default async function RestaurantsPage({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
+  const initialData = await getPlacesByCategory('restaurant', 1, 12, resolvedSearchParams.search as string);
+  
   return (
-    <CategoryClient 
-      initialData={initialData} 
-      category="restaurant" 
+    <CategoryClient
+      initialData={initialData}
+      category="restaurant"
       categoryTitle="Restaurants"
-      initialSearchQuery={searchParams.search}
+      initialSearchQuery={resolvedSearchParams.search as string}
     />
   );
 } 

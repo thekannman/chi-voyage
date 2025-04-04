@@ -17,11 +17,12 @@ interface PlacesResponse {
 
 interface RestaurantsClientProps {
   initialData: PlacesResponse;
+  searchQuery?: string;
 }
 
-export default function RestaurantsClient({ initialData }: RestaurantsClientProps) {
+export default function RestaurantsClient({ initialData, searchQuery: initialSearchQuery = '' }: RestaurantsClientProps) {
   const { ref, inView } = useInView();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [priceRange, setPriceRange] = useState('');
   const [rating, setRating] = useState('');
   const [subtype, setSubtype] = useState('');
