@@ -95,21 +95,38 @@ export const staticRoutes: Route[] = [
 ]
 
 // Function to get all dynamic routes (you'll need to implement this based on your data)
-export async function getDynamicRoutes(): Promise<Route[]> {
+export async function getDynamicRoutes(baseUrl: string): Promise<Route[]> {
   try {
-    // Fetch all places from the API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/places`);
-    const data = await response.json();
-    const places = data.places as Place[] || [];
-
+    console.log('Starting getDynamicRoutes...');
+    
+    // Fetch places
+    const placesUrl = `${baseUrl}/places`;
+    console.log('Fetching places from:', placesUrl);
+    const placesResponse = await fetch(placesUrl, {
+      cache: 'no-store', // Disable caching for debugging
+    });
+    
+    if (!placesResponse.ok) {
+      console.error('Failed to fetch places:', {
+        status: placesResponse.status,
+        statusText: placesResponse.statusText,
+        url: placesResponse.url
+      });
+      return [];
+    }
+    
+    const placesData = await placesResponse.json();
+    console.log('Places API response:', placesData);
+    const places = placesData.places || [];
+    console.log(`Found ${places.length} places`);
+    
     // Map places to routes
-    const dynamicRoutes: Route[] = places.map((place: Place) => {
-      // Determine the base path based on category
+    const placeRoutes = places.map((place: Place) => {
       const categoryPath = place.category === 'activity' ? 'activities' :
                          place.category === 'restaurant' ? 'restaurants' :
                          place.category === 'attraction' ? 'attractions' :
                          place.category === 'event' ? 'events' : 'other';
-
+      
       return {
         path: `/${categoryPath}/${place.slug}`,
         priority: 0.9,
@@ -117,22 +134,46 @@ export async function getDynamicRoutes(): Promise<Route[]> {
         lastModified: place.updated_at ? new Date(place.updated_at) : new Date(),
       };
     });
-
-    // Add neighborhood routes
-    const neighborhoodsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/neighborhoods`);
+    
+    console.log('Generated place routes:', placeRoutes);
+    
+    // Fetch neighborhoods
+    const neighborhoodsUrl = `${baseUrl}/neighborhoods`;
+    console.log('Fetching neighborhoods from:', neighborhoodsUrl);
+    const neighborhoodsResponse = await fetch(neighborhoodsUrl, {
+      cache: 'no-store', // Disable caching for debugging
+    });
+    
+    if (!neighborhoodsResponse.ok) {
+      console.error('Failed to fetch neighborhoods:', {
+        status: neighborhoodsResponse.status,
+        statusText: neighborhoodsResponse.statusText,
+        url: neighborhoodsResponse.url
+      });
+      return placeRoutes; // Return what we have so far
+    }
+    
     const neighborhoodsData = await neighborhoodsResponse.json();
-    const neighborhoods = neighborhoodsData.neighborhoods as Neighborhood[] || [];
-
-    const neighborhoodRoutes: Route[] = neighborhoods.map((neighborhood: Neighborhood) => ({
+    console.log('Neighborhoods API response:', neighborhoodsData);
+    const neighborhoods = neighborhoodsData.neighborhoods || [];
+    console.log(`Found ${neighborhoods.length} neighborhoods`);
+    
+    // Map neighborhoods to routes
+    const neighborhoodRoutes = neighborhoods.map((neighborhood: Neighborhood) => ({
       path: `/neighborhoods/${neighborhood.slug}`,
       priority: 0.8,
       changeFrequency: 'monthly',
       lastModified: new Date(),
     }));
-
-    return [...dynamicRoutes, ...neighborhoodRoutes];
+    
+    console.log('Generated neighborhood routes:', neighborhoodRoutes);
+    
+    const allDynamicRoutes = [...placeRoutes, ...neighborhoodRoutes];
+    console.log(`Total dynamic routes generated: ${allDynamicRoutes.length}`);
+    
+    return allDynamicRoutes;
   } catch (error) {
-    console.error('Error generating dynamic routes:', error);
+    console.error('Error in getDynamicRoutes:', error);
     return [];
   }
 }
@@ -146,7 +187,7 @@ export async function generateSitemap(baseUrl: string): Promise<MetadataRoute.Si
     priority: route.priority,
   }))
 
-  const dynamicRoutes = await getDynamicRoutes()
+  const dynamicRoutes = await getDynamicRoutes(baseUrl)
   const dynamicSitemapEntries = dynamicRoutes.map(route => ({
     url: `${baseUrl}${route.path}`,
     lastModified: route.lastModified || new Date(),
