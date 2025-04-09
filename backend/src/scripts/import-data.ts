@@ -37,12 +37,13 @@ interface OutscraperPlace {
   reviews_link?: string;
   owner_title?: string;
   owner_link?: string;
+  borough?: string;
   [key: string]: any;
 }
 
 // Get the file path from command line arguments or use default
 const args = process.argv.slice(2);
-const filePath = args.find(arg => !arg.startsWith('--')) || path.join(__dirname, '../../data/Outscraper-20250402171751xs4c_restaurant_+2.json');
+const filePath = args.find(arg => !arg.startsWith('--')) || path.join(__dirname, '../../data/Outscraper-20250404200006s2e.json');
 const failFast = args.includes('--fail-fast');
 
 async function importOutscraperData(filePath: string) {
@@ -133,6 +134,7 @@ async function importOutscraperData(filePath: string) {
               reviews_count: place.reviews || existingPlace.reviews_count || undefined,
               latitude: place.latitude || existingPlace.latitude || undefined,
               longitude: place.longitude || existingPlace.longitude || undefined,
+              neighborhood: place.borough || existingPlace.neighborhood || undefined,
               details: {
                 ...(existingPlace.details as JsonObject || {}),
                 place_id: place.place_id,
@@ -208,6 +210,7 @@ async function importOutscraperData(filePath: string) {
           reviews_count: place.reviews || undefined,
           latitude: place.latitude || undefined,
           longitude: place.longitude || undefined,
+          neighborhood: place.borough || undefined,
           details: {
             place_id: place.place_id,
             subtypes: Array.isArray(place.subtypes) ? place.subtypes : (typeof place.subtypes === 'string' ? (place.subtypes as string).split(',').map((s: string) => s.trim()) : []),

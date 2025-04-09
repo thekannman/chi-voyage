@@ -28,6 +28,7 @@ export interface PlacesTable {
   reviews_count: number | null;
   latitude: number | null;
   longitude: number | null;
+  neighborhood: string | null;
   create_ts: ColumnType<Date, never, never>;
   update_ts: ColumnType<Date, never, never>;
 }
@@ -67,7 +68,7 @@ export type UpdatePlace = {
   rating?: number | null;
   category?: 'activity' | 'restaurant' | 'attraction' | 'event' | 'other';
   location?: string | null;
-  neighborhood?: string;
+  neighborhood?: string | null;
   price_range?: string | null;
   working_hours?: JsonObject | null;
   features?: JsonObject | null;

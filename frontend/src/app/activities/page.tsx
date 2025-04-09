@@ -20,6 +20,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
       initialData={initialData}
       category="activity"
       categoryTitle="Activities"
+      categorySlug="activities"
       initialSearchQuery={resolvedSearchParams.search as string}
     />
   );

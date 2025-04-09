@@ -18,7 +18,7 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-[var(--card-bg)] border-b border-[var(--border-color)]">
+    <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           <div className="flex-shrink-0 flex items-center">
@@ -40,8 +40,8 @@ export default function Navigation() {
                 href={item.href}
                 className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                   pathname === item.href
-                    ? 'border-[var(--accent)] text-[var(--text-primary)]'
-                    : 'border-transparent text-[var(--text-secondary)] hover:border-[var(--border-color)] hover:text-[var(--text-primary)]'
+                    ? 'border-blue-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                 }`}
               >
                 {item.name}
@@ -51,7 +51,7 @@ export default function Navigation() {
           <div className="flex items-center sm:hidden">
             <button
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)]"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <span className="sr-only">Open main menu</span>
@@ -75,8 +75,8 @@ export default function Navigation() {
                 href={item.href}
                 className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                   pathname === item.href
-                    ? 'bg-[var(--hover-bg)] border-[var(--accent)] text-[var(--accent)]'
-                    : 'border-transparent text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:border-[var(--border-color)] hover:text-[var(--text-primary)]'
+                    ? 'bg-blue-50 border-blue-500 text-blue-700'
+                    : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >

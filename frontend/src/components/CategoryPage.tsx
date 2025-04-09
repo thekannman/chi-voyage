@@ -11,6 +11,7 @@ interface CategoryPageProps {
   };
   category: 'activity' | 'restaurant' | 'attraction' | 'event' | 'other';
   categoryTitle: string;
+  categorySlug: string;
 }
 
 export async function generateMetadata({ params, category, categoryTitle }: CategoryPageProps): Promise<Metadata> {
@@ -36,7 +37,7 @@ export async function generateMetadata({ params, category, categoryTitle }: Cate
 
 export const revalidate = 3600;
 
-export default async function CategoryPage({ params, category, categoryTitle }: CategoryPageProps) {
+export default async function CategoryPage({ params, categoryTitle, categorySlug }: CategoryPageProps) {
   const place = await getPlaceBySlug(params.slug);
 
   if (!place) {
@@ -47,7 +48,7 @@ export default async function CategoryPage({ params, category, categoryTitle }: 
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <nav className="mb-4">
-          <a href={`/${category}s`} className="text-blue-600 hover:text-blue-800">
+          <a href={`/${categorySlug}`} className="text-blue-600 hover:text-blue-800">
             ← Back to {categoryTitle}
           </a>
         </nav>

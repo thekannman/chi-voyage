@@ -20,6 +20,7 @@ export default async function RestaurantsPage({ searchParams }: Props) {
       initialData={initialData}
       category="restaurant"
       categoryTitle="Restaurants"
+      categorySlug="restaurants"
       initialSearchQuery={resolvedSearchParams.search as string}
     />
   );

@@ -7,5 +7,10 @@ type Props = {
 
 export default async function AttractionPage({ params }: Props) {
   const resolvedParams = await params;
-  return <CategoryPage params={resolvedParams} category="attraction" categoryTitle="Attractions" />;
+  return <CategoryPage 
+    params={resolvedParams} 
+    category="attraction" 
+    categoryTitle="Attractions" 
+    categorySlug="attractions"
+  />;
 } 

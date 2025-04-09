@@ -62,16 +62,19 @@ export default function CareersClient() {
               </ul>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold mb-4">Current Openings</h2>
+              <h2 className="text-2xl font-bold mb-4">Future Opportunities</h2>
               <p className="mb-4">
-                We&apos;re currently looking for the following positions:
+                While we don&apos;t have any open positions at the moment, we&apos;re always interested in connecting with talented individuals. We typically look for:
               </p>
               <ul className="list-disc list-inside space-y-2">
-                <li>Frontend Developer</li>
-                <li>Backend Developer</li>
-                <li>Product Designer</li>
-                <li>Content Writer</li>
+                <li>Frontend Developers</li>
+                <li>Backend Developers</li>
+                <li>Product Designers</li>
+                <li>Content Writers</li>
               </ul>
+              <p className="mt-4">
+                If you&apos;re interested in any of these roles, feel free to reach out to us for future opportunities.
+              </p>
             </div>
           </div>
         </div>

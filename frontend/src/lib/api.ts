@@ -1,4 +1,5 @@
-import { Place, Neighborhood } from '@/types';
+import { Place, Neighborhood as ApiNeighborhood } from '@/types';
+import { neighborhoods, Neighborhood as DataNeighborhood } from '@/data/neighborhoods';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -87,36 +88,31 @@ export async function getPlacesByCategory(
   return data;
 }
 
-export async function getAllNeighborhoods(): Promise<Neighborhood[]> {
-  const res = await fetch(`${API_BASE_URL}/neighborhoods`, {
-    next: {
-      revalidate: 3600 // Revalidate every hour
-    }
-  });
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch neighborhoods');
-  }
-  
-  const data = await res.json();
-  console.log('API Response - getAllNeighborhoods:', data);
-  return data;
+function transformNeighborhood(neighborhood: DataNeighborhood): ApiNeighborhood {
+  return {
+    id: parseInt(neighborhood.id),
+    name: neighborhood.name,
+    slug: neighborhood.slug,
+    description: neighborhood.description,
+    location: neighborhood.name, // Using name as location for now
+    imagePath: neighborhood.imagePath,
+    images: [neighborhood.imagePath],
+    places: [], // Empty array for now since we don't have place data
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
 }
 
-export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood> {
-  const res = await fetch(`${API_BASE_URL}/neighborhoods/${slug}`, {
-    next: {
-      revalidate: 3600 // Revalidate every hour
-    }
-  });
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch neighborhood');
+export async function getAllNeighborhoods(): Promise<ApiNeighborhood[]> {
+  return neighborhoods.map(transformNeighborhood);
+}
+
+export async function getNeighborhoodBySlug(slug: string): Promise<ApiNeighborhood> {
+  const neighborhood = neighborhoods.find(n => n.slug === slug);
+  if (!neighborhood) {
+    throw new Error('Neighborhood not found');
   }
-  
-  const data = await res.json();
-  console.log('API Response - getNeighborhoodBySlug:', data);
-  return data;
+  return transformNeighborhood(neighborhood);
 }
 
 export async function getNeighborhoodPlaces(neighborhoodId: string): Promise<Place[]> {
@@ -145,4 +141,4 @@ export async function getSubtypesForCategory(
   const data = await res.json();
   console.log('API Response - getSubtypesForCategory:', data);
   return data;
-} 
+}
