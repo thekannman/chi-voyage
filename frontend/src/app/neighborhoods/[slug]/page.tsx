@@ -58,6 +58,7 @@ export default async function NeighborhoodPage({ params }: Props) {
             alt={neighborhood.name}
             fill
             className="object-cover"
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/40" />
           <div className="absolute inset-0 flex items-center justify-center text-center p-8">

@@ -30,6 +30,7 @@ export default function Navigation() {
                 priority
                 className="object-contain"
                 sizes="160px"
+                unoptimized
               />
             </Link>
           </div>

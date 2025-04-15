@@ -12,6 +12,7 @@ export default function TestImage() {
           fill
           className="object-cover"
           priority
+          unoptimized
         />
       </div>
       

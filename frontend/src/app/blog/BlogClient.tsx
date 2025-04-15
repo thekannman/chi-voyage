@@ -81,6 +81,7 @@ export default function BlogClient() {
                       alt={post.title}
                       fill
                       className="object-cover"
+                      unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
