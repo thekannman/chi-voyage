@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import type { Metadata } from 'next';
 
 const categoryPlaceholders: Record<string, string> = {
   'Places': '/images/blog/placeholders/places.jpg',
@@ -11,18 +12,19 @@ const categoryPlaceholders: Record<string, string> = {
 };
 
 interface BlogPostPageProps {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export async function generateMetadata({ params }: BlogPostPageProps) {
+export async function generateMetadata(props: BlogPostPageProps): Promise<Metadata> {
+  const params = await props.params;
   const post = getBlogPost(params.slug);
   if (!post) return {};
   return post.metadata;
 }
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
+export default async function BlogPostPage(props: BlogPostPageProps) {
+  const params = await props.params;
   const post = getBlogPost(params.slug);
   
   if (!post) {
