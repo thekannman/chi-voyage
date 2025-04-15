@@ -78,6 +78,7 @@ export default function RootLayout({
             <Navigation />
             <main className="flex-grow">
               {children}
+              <Analytics />
             </main>
             <Footer />
           </div>
