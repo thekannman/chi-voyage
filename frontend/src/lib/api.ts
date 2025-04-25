@@ -35,17 +35,21 @@ export async function getAllPlaces(
   return data;
 }
 
-export async function getPlaceBySlug(slug: string): Promise<Place> {
+export async function getPlaceBySlug(slug: string): Promise<Place | null> {
   const res = await fetch(`${API_BASE_URL}/places/${slug}`, {
     next: {
       revalidate: 3600 // Revalidate every hour
     }
   });
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch place');
+
+  if (res.status === 404) {
+    return null;
   }
-  
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch place: ${res.statusText}`);
+  }
+
   const data = await res.json();
   console.log('API Response - getPlaceBySlug:', data);
   return data;
