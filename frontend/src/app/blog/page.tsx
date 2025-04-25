@@ -1,70 +1,82 @@
-import { getAllBlogPosts } from '@/lib/blog';
-import Link from 'next/link';
-import Image from 'next/image';
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+import BlogClient, { BlogPost, Category } from './BlogClient'; // Assuming BlogClient exports BlogPost type
 
-const categoryPlaceholders: Record<string, string> = {
-  'Places': '/images/blog/placeholders/places.png',
-  'Food': '/images/blog/placeholders/food.png',
-  'Travel Tips': '/images/blog/placeholders/travel.png',
-};
+// Define the expected structure of the frontmatter
+interface Frontmatter {
+  title: string;
+  description: string;
+  date: string; // Keep as string for now, can parse later if needed
+  category: Category; // Use the imported Category type
+  readTime?: string;
+  keywords?: string[];
+  heroImage?: string;
+}
 
-export const metadata = {
-  title: 'Chicago Travel Blog | Chi Voyage',
-  description: 'Explore comprehensive travel guides, local insights, and expert tips for experiencing Chicago like a local.',
-};
+function getPostData(): BlogPost[] {
+  const postsDirectory = path.join(process.cwd(), 'content/blog');
+  // console.log('[BlogPage] Trying to read from directory:', postsDirectory); // Removed log
+
+  let filenames: string[];
+  try {
+    filenames = fs.readdirSync(postsDirectory);
+    // console.log('[BlogPage] Found files:', filenames); // Removed log
+  } catch (error) {
+    console.error("[BlogPage] Error reading blog directory:", error);
+    return []; // Return empty array if directory doesn't exist or can't be read
+  }
+
+  const posts = filenames
+    .filter((filename) => filename.endsWith('.mdx')) // Only process .mdx files
+    .map((filename): BlogPost | null => {
+      const slug = filename.replace(/\.mdx$/, '');
+      const fullPath = path.join(postsDirectory, filename);
+      // console.log(`[BlogPage] Processing file: ${fullPath}`); // Removed log
+      try {
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        const { data } = matter(fileContents); // Parse frontmatter
+        // console.log(`[BlogPage] Parsed frontmatter for ${filename}:`, data); // Removed log
+
+        // Validate frontmatter structure (basic validation)
+        const frontmatter = data as Frontmatter;
+        if (!frontmatter.title || !frontmatter.description || !frontmatter.category || !frontmatter.date) {
+          // Keep this warning as it's useful for content errors
+          console.warn(`[BlogPage] Skipping ${filename}: Missing required frontmatter fields.`);
+          return null;
+        }
+
+        return {
+          id: slug,
+          title: frontmatter.title,
+          excerpt: frontmatter.description, // Use description as excerpt
+          category: frontmatter.category,
+          image: frontmatter.heroImage, // Pass heroImage if available
+          // Add date if needed for sorting/display, ensure BlogPost includes it
+           date: frontmatter.date, 
+        };
+      } catch (error) {
+        // Keep this error log
+        console.error(`[BlogPage] Error processing file ${filename}:`, error);
+        return null; // Skip files that cause errors
+      }
+    });
+
+  // Filter out any null values from mapping (due to errors or missing fields)
+  const validPosts = posts.filter((post): post is BlogPost => post !== null);
+  
+  // Sort posts by date, newest first
+  validPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return validPosts;
+}
+
 
 export default function BlogPage() {
-  const posts = getAllBlogPosts();
+  // console.log('[BlogPage] Rendering BlogPage...'); // Removed log
+  const blogPosts = getPostData();
+  // console.log(`[BlogPage] Passing ${blogPosts.length} posts to BlogClient.`); // Removed log
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <header className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Chicago Travel Blog</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Discover the best of Chicago through our comprehensive guides, from deep dish pizza to hidden gems.
-        </p>
-      </header>
-
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => {
-          const imageSrc = categoryPlaceholders[post.category] || '/images/blog/placeholders/generic.png';
-          
-          return (
-            <Link 
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="group block"
-            >
-              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative aspect-[16/9]">
-                  <Image
-                    src={imageSrc}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-full">
-                      {post.category}
-                    </span>
-                    <span className="text-sm text-gray-500">{post.readTime}</span>
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                    {post.title}
-                  </h2>
-                  <p className="text-gray-600 line-clamp-2">
-                    {post.description}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+  // Pass the fetched data to the client component
+  return <BlogClient blogPosts={blogPosts} />;
 } 

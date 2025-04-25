@@ -3,14 +3,22 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-type Category = 'Places' | 'Food' | 'Travel Tips';
+// Ensure Category type covers all possibilities from frontmatter
+export type Category = 'Places' | 'Food' | 'Travel Tips' | 'Planning'; // Added Planning
 
-interface BlogPost {
+// Export the interface and add the date field
+export interface BlogPost {
   id: string;
   title: string;
   excerpt: string;
   image?: string;
   category: Category;
+  date: string; // Add date field
+}
+
+// Define props for the component
+interface BlogClientProps {
+  blogPosts: BlogPost[];
 }
 
 // Category-specific placeholder images
@@ -18,43 +26,14 @@ const categoryPlaceholders: Record<Category, string> = {
   'Places': '/images/blog/placeholders/places.png',
   'Food': '/images/blog/placeholders/food.png',
   'Travel Tips': '/images/blog/placeholders/travel.png',
+  'Planning': '/images/blog/placeholders/travel.png', // Use Travel Tips image for Planning for now
 };
 
-// Mock blog posts data
-const blogPosts: BlogPost[] = [
-  {
-    id: 'chicagos-hidden-gems',
-    title: 'Top 10 Hidden Gems in Chicago',
-    excerpt: 'Discover the lesser-known but amazing places in Chicago that locals love.',
-    category: 'Places',
-  },
-  {
-    id: 'foodies-guide-to-chicago',
-    title: 'A Foodie\'s Guide to Chicago',
-    excerpt: 'Explore the diverse culinary scene of Chicago, from deep-dish pizza to international cuisine.',
-    category: 'Food',
-  },
-  {
-    id: 'best-time-to-visit-chicago',
-    title: 'Best Time to Visit Chicago',
-    excerpt: 'Learn about the best seasons and events to plan your perfect Chicago trip.',
-    category: 'Travel Tips',
-  },
-  {
-    id: 'chicagos-best-deep-dish-pizza',
-    title: 'Chicago\'s Best Deep Dish Pizza: A Local\'s Guide',
-    excerpt: 'From the original to the modern takes, discover where to find the best deep dish pizza in Chicago.',
-    category: 'Food',
-  },
-  {
-    id: 'chicago-public-transportation-guide',
-    title: 'Navigating Chicago: A Complete Public Transportation Guide',
-    excerpt: 'Everything you need to know about getting around Chicago using public transportation.',
-    category: 'Travel Tips',
-  },
-];
+// Remove the hardcoded blogPosts array
+// const blogPosts: BlogPost[] = [ ... ];
 
-export default function BlogClient() {
+// Accept blogPosts as a prop
+export default function BlogClient({ blogPosts }: BlogClientProps) {
   return (
     <div className="bg-white">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
@@ -70,33 +49,43 @@ export default function BlogClient() {
         <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {blogPosts.map((post) => {
             // Determine which image to use
-            const imageSrc = post.image || categoryPlaceholders[post.category] || '/images/blog/placeholders/generic.jpg';
-            
+            // Ensure category exists in placeholders, fallback to generic if not
+            const placeholder = categoryPlaceholders[post.category] || '/images/blog/placeholders/generic.jpg';
+            const imageSrc = post.image || placeholder;
+
             return (
-              <article key={post.id} className="flex flex-col overflow-hidden rounded-lg shadow-lg">
-                <div className="flex-shrink-0">
-                  <div className="h-48 w-full relative">
-                    <Image
-                      src={imageSrc}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              <article key={post.id} className="flex flex-col overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <Link href={`/blog/${post.id}`} className="block group">
+                  <div className="flex-shrink-0">
+                    <div className="h-48 w-full relative overflow-hidden"> {/* Added overflow-hidden */}
+                      <Image
+                        src={imageSrc}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out" // Added hover effect
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Add sizes prop
+                        // Remove unoptimized if you want Next.js image optimization
+                        // unoptimized 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-1 flex-col justify-between bg-white p-6">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-600">
-                      {post.category}
-                    </p>
-                    <Link href={`/blog/${post.id}`} className="mt-2 block">
-                      <p className="text-xl font-semibold text-gray-900">{post.title}</p>
-                      <p className="mt-3 text-base text-gray-500">{post.excerpt}</p>
-                    </Link>
+                  <div className="flex flex-1 flex-col justify-between bg-white p-6">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-600">
+                        {post.category}
+                      </p>
+                      {/* <Link href={`/blog/${post.id}`} className="mt-2 block"> */}
+                        <p className="text-xl font-semibold text-gray-900 group-hover:text-blue-700 mt-2">{post.title}</p>
+                        <p className="mt-3 text-base text-gray-500 line-clamp-3">{post.excerpt}</p> {/* Use line-clamp */}
+                      {/* </Link> */}
+                    </div>
+                     {/* Optional: Add date display */}
+                     <div className="mt-4 text-sm text-gray-500">
+                       {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                     </div>
                   </div>
-                </div>
+                </Link>
               </article>
             );
           })}

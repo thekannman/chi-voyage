@@ -1,129 +1,123 @@
-import { getBlogPost } from '@/lib/blog';
+import fs from 'fs';
+import { readdir } from 'fs/promises';
+import path from 'path';
+import matter from 'gray-matter';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import BlogPostLayout from '@/components/Blog/BlogPostLayout';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import type { Metadata } from 'next';
-
-const categoryPlaceholders: Record<string, string> = {
-  'Places': '/images/blog/placeholders/places.jpg',
-  'Food': '/images/blog/placeholders/food.jpg',
-  'Travel Tips': '/images/blog/placeholders/travel.jpg',
-};
+import { Category } from '../BlogClient';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export async function generateMetadata(props: BlogPostPageProps): Promise<Metadata> {
-  const params = await props.params;
-  const post = getBlogPost(params.slug);
-  if (!post) return {};
-  return post.metadata;
+interface Frontmatter {
+  title: string;
+  description: string;
+  date: string;
+  category: Category;
+  readTime?: string;
+  heroImage?: string;
+  keywords?: string[];
 }
 
-export default async function BlogPostPage(props: BlogPostPageProps) {
-  const params = await props.params;
-  const post = getBlogPost(params.slug);
+const postsDirectory = path.join(process.cwd(), 'content/blog');
+
+function getPostData(slug: string): { frontmatter: Frontmatter; content: string } | null {
+  const fullPath = path.join(postsDirectory, `${slug}.mdx`);
+  try {
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
+    const { data, content } = matter(fileContents);
+
+    const frontmatter = data as Frontmatter;
+    if (!frontmatter.title || !frontmatter.description || !frontmatter.category || !frontmatter.date) {
+        console.warn(`Post "${slug}" is missing required frontmatter fields.`);
+        return null;
+    }
+    return { frontmatter, content };
+
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      console.log(`Blog post not found for slug: ${slug}`);
+    } else {
+      console.error(`Error reading blog post for slug "${slug}":`, error);
+    }
+    return null;
+  }
+}
+
+export async function generateStaticParams() {
+  try {
+    const filenames = await readdir(postsDirectory);
+    return filenames
+      .filter(filename => filename.endsWith('.mdx'))
+      .map(filename => ({
+        slug: filename.replace(/\.mdx$/, ''),
+      }));
+  } catch (error) {
+     console.error("Error reading blog directory for static params:", error);
+     return [];
+  }
+}
+
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const postData = getPostData(slug);
+
+  if (!postData) {
+    return {
+      title: 'Not Found',
+      description: 'The page you are looking for does not exist.'
+    };
+  }
+  const { frontmatter } = postData;
+
+  return {
+    title: `${frontmatter.title} | Chi Voyage`,
+    description: frontmatter.description,
+    keywords: frontmatter.keywords || [],
+    openGraph: {
+      title: frontmatter.title,
+      description: frontmatter.description,
+      type: 'article',
+      publishedTime: frontmatter.date,
+      section: frontmatter.category,
+      images: frontmatter.heroImage ? [frontmatter.heroImage] : undefined,
+    },
+  };
+}
+
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug } = await params;
+  const postData = getPostData(slug);
   
-  if (!post) {
+  if (!postData) {
     notFound();
   }
 
-  const heroImageSrc = post.heroImage || categoryPlaceholders[post.category] || '/images/blog/placeholders/generic.jpg';
+  const { frontmatter, content } = postData;
+
+  const layoutProps = {
+    category: frontmatter.category,
+    readTime: frontmatter.readTime || '',
+    title: frontmatter.title,
+    description: frontmatter.description,
+    heroImageSrc: frontmatter.heroImage,
+    heroImageAlt: frontmatter.title,
+    relatedRestaurants: [],
+    relatedNeighborhoods: [],
+    relatedBlogPosts: [],
+  };
+
+  const components = {
+    Link,
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Back Navigation */}
-      <nav className="mb-8">
-        <Link 
-          href="/blog" 
-          className="text-blue-600 hover:text-blue-800 inline-flex items-center"
-        >
-          <ArrowLeftIcon className="h-5 w-5 mr-1" />
-          Back to Blog
-        </Link>
-      </nav>
-
-      {/* Article Header */}
-      <header className="mb-8">
-        <div className="flex items-center space-x-4 mb-4">
-          <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-full">
-            {post.category}
-          </span>
-          <span className="text-sm text-gray-500">{post.readTime}</span>
-        </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          {post.title}
-        </h1>
-        <p className="text-xl text-gray-600">
-          {post.description}
-        </p>
-      </header>
-
-      {/* Hero Image */}
-      <div className="relative w-full aspect-[16/9] mb-8 rounded-lg overflow-hidden shadow-lg">
-        <Image
-          src={heroImageSrc}
-          alt={post.title}
-          fill
-          className="object-cover"
-          unoptimized
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-      </div>
-
-      {/* Article Content */}
-      <article 
-        className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
-
-      {/* Related Content */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">Explore More</h2>
-        
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Related Restaurants */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Restaurants</h3>
-            <div className="space-y-4">
-              {/* This would be populated with actual related restaurants */}
-              <div className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="text-lg font-medium text-gray-900">Related Restaurant</h4>
-                <p className="text-gray-600 mt-1">Description of the restaurant</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Related Neighborhoods */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Neighborhoods</h3>
-            <div className="space-y-4">
-              {/* This would be populated with actual related neighborhoods */}
-              <div className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="text-lg font-medium text-gray-900">Related Neighborhood</h4>
-                <p className="text-gray-600 mt-1">Description of the neighborhood</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Related Blog Posts */}
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">More {post.category} Guides</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* This would be populated with actual related blog posts */}
-          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="p-6">
-              <h3 className="text-xl font-semibold text-gray-900">Related Blog Post</h3>
-              <p className="mt-2 text-gray-600">Description of the related post...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <BlogPostLayout {...layoutProps}>
+      <MDXRemote source={content} components={components} />
+    </BlogPostLayout>
   );
 } 

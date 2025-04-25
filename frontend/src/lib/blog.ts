@@ -1,98 +1,98 @@
 import fs from 'fs';
+// import { readFile } from 'fs/promises';
 import path from 'path';
-import { parse } from 'node-html-parser';
-import { Metadata } from 'next';
+import matter from 'gray-matter';
 
-export interface BlogPost {
-  slug: string;
+export interface BlogPostFrontmatter {
   title: string;
   description: string;
   date: string;
   category: string;
   readTime: string;
-  content: string;
   heroImage?: string;
-  metadata: Metadata;
+  keywords?: string[];
 }
 
-export function getAllBlogPosts(): BlogPost[] {
-  const postsDirectory = path.join(process.cwd(), 'content/blog');
-  const fileNames = fs.readdirSync(postsDirectory);
-  
-  return fileNames
-    .filter(fileName => fileName.endsWith('.html'))
-    .map(fileName => {
-      const slug = fileName.replace(/\.html$/, '');
-      const fullPath = path.join(postsDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, 'utf8');
-      return parseBlogPost(fileContents, slug);
-    })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+export interface BlogListData {
+  slug: string;
+  frontmatter: BlogPostFrontmatter;
 }
 
-export function getBlogPost(slug: string): BlogPost | null {
+export interface BlogPostData {
+  slug: string;
+  frontmatter: BlogPostFrontmatter;
+  content: string;
+}
+
+const postsDirectory = path.join(process.cwd(), 'content/blog');
+
+export function getAllBlogPosts(): BlogListData[] {
+  let fileNames: string[];
   try {
-    const fullPath = path.join(process.cwd(), 'content/blog', `${slug}.html`);
+    fileNames = fs.readdirSync(postsDirectory);
+  } catch (error) {
+    console.error("Error reading blog posts directory:", postsDirectory, error);
+    return [];
+  }
+  
+  const allPostsData = fileNames
+    .filter(fileName => fileName.endsWith('.mdx'))
+    .map(fileName => {
+      const slug = fileName.replace(/\.mdx$/, '');
+      const fullPath = path.join(postsDirectory, fileName);
+      
+      try {
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        const { data } = matter(fileContents);
+
+        const frontmatter = data as BlogPostFrontmatter;
+
+        if (!frontmatter.title || !frontmatter.date || !frontmatter.category || !frontmatter.description || !frontmatter.readTime) {
+            console.warn(`Post "${slug}" is missing required frontmatter fields.`);
+            return null;
+        }
+        
+        return {
+          slug,
+          frontmatter,
+        };
+      } catch (error) {
+          console.error(`Error processing post "${slug}":`, error);
+          return null;
+      }
+    })
+    .filter((post): post is BlogListData => post !== null);
+
+  return allPostsData.sort((a, b) => 
+    new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime()
+  );
+}
+
+export function getBlogPostBySlug(slug: string): BlogPostData | null {
+  const fullPath = path.join(postsDirectory, `${slug}.mdx`);
+  
+  try {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-    return parseBlogPost(fileContents, slug);
-  } catch {
+    const { data, content } = matter(fileContents);
+
+    const frontmatter = data as BlogPostFrontmatter;
+
+    if (!frontmatter.title || !frontmatter.date || !frontmatter.category || !frontmatter.description || !frontmatter.readTime) {
+        console.warn(`Post "${slug}" is missing required frontmatter fields.`);
+        return null;
+    }
+
+    return {
+      slug,
+      frontmatter,
+      content,
+    };
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+        console.log(`Blog post not found for slug: ${slug}`);
+    } else {
+        console.error(`Error reading blog post for slug "${slug}":`, error);
+    }
     return null;
   }
-}
-
-function parseBlogPost(html: string, slug: string): BlogPost {
-  const root = parse(html);
-  
-  // Extract metadata from meta tags
-  const title = root.querySelector('meta[property="og:title"]')?.getAttribute('content') || 
-                root.querySelector('title')?.text || '';
-  const description = root.querySelector('meta[property="og:description"]')?.getAttribute('content') || 
-                     root.querySelector('meta[name="description"]')?.getAttribute('content') || '';
-  const date = root.querySelector('meta[property="article:published_time"]')?.getAttribute('content') || 
-               new Date().toISOString();
-  const category = root.querySelector('meta[property="article:section"]')?.getAttribute('content') || 'Uncategorized';
-  const readTime = root.querySelector('meta[name="read-time"]')?.getAttribute('content') || '5 min read';
-  
-  // Extract hero image if present
-  const heroImage = root.querySelector('article img')?.getAttribute('src') || undefined;
-  
-  // Extract the main content
-  const article = root.querySelector('article');
-  if (!article) {
-    throw new Error('No article content found in blog post');
-  }
-  
-  // Remove the hero image from the content if it exists
-  const heroImageElement = article.querySelector('img');
-  if (heroImageElement) {
-    heroImageElement.remove();
-  }
-  
-  const content = article.toString();
-  
-  // Create metadata object
-  const metadata: Metadata = {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-      publishedTime: date,
-      section: category,
-      images: heroImage ? [heroImage] : undefined,
-    },
-  };
-  
-  return {
-    slug,
-    title,
-    description,
-    date,
-    category,
-    readTime,
-    content,
-    heroImage,
-    metadata,
-  };
 } 
