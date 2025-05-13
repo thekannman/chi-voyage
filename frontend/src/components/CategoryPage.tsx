@@ -169,7 +169,7 @@ export default async function CategoryPage({ params, categoryTitle, categorySlug
                 </div>
               )}
 
-              {place.latitude && place.longitude && (
+              {/*{place.latitude && place.longitude && (
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold mb-4">Location</h2>
                   <div className="rounded-lg overflow-hidden shadow-md">
@@ -181,7 +181,7 @@ export default async function CategoryPage({ params, categoryTitle, categorySlug
                     />
                   </div>
                 </div>
-              )}
+              )}*/}
             </div>
           </div>
 

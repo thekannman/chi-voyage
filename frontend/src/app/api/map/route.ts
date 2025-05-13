@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     return new NextResponse('Missing coordinates', { status: 400 });
   }
 
+  // TK: DEACTIVATED GOGOLE MAPS API KEY FOR NOW. COST WAS TOO HIGH.
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return new NextResponse('API key not configured', { status: 500 });
