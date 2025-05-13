@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPlaceBySlug } from '@/lib/api';
 import ImageWithFallback from '@/components/ImageWithFallback';
-import GoogleMapComponent from '@/components/GoogleMap';
+//import GoogleMapComponent from '@/components/GoogleMap';
 import { StarIcon, CurrencyDollarIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 interface CategoryPageProps {
